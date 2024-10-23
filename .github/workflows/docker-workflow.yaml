@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: $(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
     docker:
@@ -38,8 +38,9 @@ jobs:
                 name: Build and push development image
                 id: build-and-push-dev
                 run: |
-                    docker build -t ${{ env.REGISTRY}}/${{ env.IMAGE_NAME }}:dev --target development .
-                    docker push ${{ env.REGISTRY}}/${{ env.IMAGE_NAME }}:dev
+                    IMAGE_NAME=$(echo "${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')
+                    docker build -t ${{ env.REGISTRY}}/${IMAGE_NAME}:dev --target development .
+                    docker push ${{ env.REGISTRY}}/${IMAGE_NAME}:dev
             
             - 
                 id: build-and-push-prod
@@ -47,5 +48,5 @@ jobs:
                 uses: docker/build-push-action@v6
                 with:
                     context: .
+                    tags: ${{ env.REGISTRY }}/$(echo "${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]'):prod
                     push: true
-                    tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:prod
