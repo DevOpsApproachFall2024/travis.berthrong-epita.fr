@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: $(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
 
 jobs:
     docker:
@@ -38,22 +38,14 @@ jobs:
                 name: Build and push development image
                 id: build-and-push-dev
                 run: |
-                    docker build -t $(echo ${{ env.REGISTRY }} | tr '[:upper:]' '[:lower:]')/$(echo ${{ env.IMAGE_NAME }} | tr '[:upper:]' '[:lower:]'):dev --target development .
-                    docker push $(echo ${{ env.REGISTRY }} | tr '[:upper:]' '[:lower:]')/$(echo ${{ env.IMAGE_NAME }} | tr '[:upper:]' '[:lower:]'):dev
+                    docker build -t ${{ env.REGISTRY}}/${{ env.IMAGE_NAME }}:dev --target development .
+                    docker push ${{ env.REGISTRY}}/${{ env.IMAGE_NAME }}:dev
             
             - 
-                id: build-and-push
-                name: Build and push
+                id: build-and-push-prod
+                name: Build and push production image
                 uses: docker/build-push-action@v6
                 with:
                     context: .
                     push: true
-                    tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-
-            -
-                name: Generate artifact attestation
-                uses: actions/attest-build-provenance@v1
-                with:
-                    subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
-                    subject-digest: ${{ steps.build-and-push.outputs.digest }}
-                    push-to-registry: true
+                    tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:prod
