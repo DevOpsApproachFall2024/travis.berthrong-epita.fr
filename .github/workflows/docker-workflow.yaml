@@ -38,7 +38,7 @@ jobs:
                 name: Build and push development image
                 id: build-and-push-dev
                 run: |
-                    docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev --target development .
+                    docker build -t $(echo ${{ env.REGISTRY }} | tr '[:upper:]' '[:lower:]')/$(echo ${{ env.IMAGE_NAME }} | tr '[:upper:]' '[:lower:]'):dev --target development .
                     docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev
             
             - 
