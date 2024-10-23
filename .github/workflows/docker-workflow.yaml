@@ -39,7 +39,11 @@ jobs:
                 id: meta
                 uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
                 with:
-                    images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}
+                    images: ${{ env.REGISTRY }}/${{ github.repository }}/app
+                    tags:  |
+                        latest
+                        ${{ github.sha }}
+
 
             - 
                 name: Set up Docker Buildx
