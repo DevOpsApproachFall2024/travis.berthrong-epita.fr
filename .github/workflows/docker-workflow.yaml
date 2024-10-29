@@ -2,13 +2,8 @@ on:
     push:
         branches:
             - main
-    
-    pull_request:
-        branches:
-            - main
-    release:
-        types:
-            - created
+        tags:
+            - 'v*'
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
@@ -36,26 +31,20 @@ jobs:
                     username: ${{ github.actor }}
                     password: ${{ secrets.GITHUB_TOKEN }}
 
-            -
-                name: Extract metadata (tags, labels) for Docker
+            - 
+                name: Docker meta
                 id: meta
-                uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+                uses: docker/metadata-action@v5
                 with:
                     images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
                     tags: |
-                        type=semver,pattern={{version}}
-
-
-            -
-                name: Build and push development image
-                id: build-and-push-dev
-                run: |
-                    docker build -t ${{steps.meta.outputs.tags}}-dev --target development .
-                    docker push ${{steps.meta.outputs.tags}}-dev
-            
+                        type=match,pattern=v(.*)|latest
+                        type=raw,value=latest,enable={{is_default_branch}}
+        
             - 
-                id: build-and-push-prod
-                name: Build and push production image
-                run: |
-                    docker build -t ${{steps.meta.outputs.tags}} --target production .
-                    docker push ${{steps.meta.outputs.tags}}
+                name: Build
+                uses: docker/build-push-action@v2
+                with:
+                    context: .
+                    push: true
+                    tags: ${{ steps.meta.outputs.tags }}
