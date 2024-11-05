@@ -1,0 +1,38 @@
+name: Run Linter
+
+on: [push, pull_request]
+
+jobs:
+  run_lint:
+    permissions:
+      # Default permissions (matching what would be set if the permissions section was missing at all)
+      contents: read
+      packages: read
+
+      # Need to add these 2 for eslint-annotate-action
+      pull-requests: read
+      checks: write
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install Node Dependencies
+        run: npm ci
+        env:
+          CI: TRUE
+      - name: Test Code Linting
+        run: npm run lint
+      - name: Save Code Linting Report JSON
+        run: npm run lint-file
+      - name: Annotate Code Linting Results
+        uses: ataylorme/eslint-annotate-action@v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          report-json: "eslint_report.json"
+
+    
