@@ -29,10 +29,13 @@ jobs:
         run: npm run lint
       - name: Save Code Linting Report JSON
         run: npm run lint-file
+        continue-on-error: true
       - name: Annotate Code Linting Results
         uses: ataylorme/eslint-annotate-action@v3
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          report-json: "eslint_report.json"
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            report-json: "eslint_report.json"
+            markdown-report-on-step-summary: true
+            fail-on-error: true
 
     
